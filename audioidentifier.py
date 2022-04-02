@@ -102,8 +102,8 @@ def pick_and_apply_tags(path, all_data):
             invalid_reply = True
 
 
-def main(path):
-    idsnippet = truncate_audio_file(path)
+def main(path, length):
+    idsnippet = truncate_audio_file(path, length)
     token = upload_for_identification(idsnippet, API_KEY)
     all_data = retrieve_result(token, API_KEY)
     if all_data:
@@ -112,13 +112,15 @@ def main(path):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser('Tool to get audio metadata from audiotag.info')
-    parser.add_argument('-a', '--api-key', help='file containing the api key (and nothing else)')
+    parser.add_argument('-a', '--api-key', help='file containing the api key (and nothing else)',
+                        required=True)
     parser.add_argument('files', help='files in need of metadata', nargs='+')
-
+    parser.add_argument('-l', '--length', default='00:20',
+                        help='length of audio snippet to upload in mm:ss, default is 00:20')
     args = parser.parse_args()
 
     with open(args.api_key) as tokenfile:
         API_KEY = tokenfile.read().strip()
 
     for path in args.files:
-        main(path)
+        main(path, args.length)
