@@ -7,7 +7,7 @@ The chosen set of tags is then directly applied to the file.
 
 Dependencies
 ------------
-
+Apart from [python3](www.python.org), this program needs
 - [sox](http://sox.sourceforge.net/) to truncate the audio files.
 - [mutagen](https://github.com/quodlibet/mutagen) to modify the tags.
 
