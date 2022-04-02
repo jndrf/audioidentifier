@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 
-import asyncio
 import argparse
 import os
 import subprocess
@@ -14,6 +13,7 @@ from mutagen.oggvorbis import OggVorbis
 import requests
 
 API_URL = 'https://audiotag.info/api'
+API_KEY = ''
 
 def truncate_audio_file(inputpath, duration='00:20'):
     '''return path to temp file with first duration mm:ss'''
@@ -112,9 +112,13 @@ def main(path):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser('Tool to get audio metadata from audiotag.info')
+    parser.add_argument('-a', '--api-key', help='file containing the api key (and nothing else)')
     parser.add_argument('files', help='files in need of metadata', nargs='+')
 
     args = parser.parse_args()
+
+    with open(args.api_key) as tokenfile:
+        API_KEY = tokenfile.read().strip()
 
     for path in args.files:
         main(path)
