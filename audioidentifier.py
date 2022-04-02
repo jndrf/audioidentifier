@@ -47,7 +47,7 @@ def retrieve_result(token, apikey):
         elif reply['result'] == 'found':
             return reply['data']
         else:
-            break
+            return False
 
 def apply_tags_mp3(path, **kwargs): #title='', artist='', album='', year=''):
     id3tags = EasyID3(path)
@@ -67,7 +67,18 @@ def apply_tags_ogg(path, **kwargs):
 
     oggfile.save()
 
+TAGGING_FUNCTIONS = {'mp3':apply_tags_mp3,
+                     'ogg':apply_tags_ogg}
+
 def pick_and_apply_tags(path, all_data):
+    # find tagging function
+    filetype = path.split('.')[-1].lower()
+    try:
+        apply_tags = TAGGING_FUNCTIONS[filetype]
+    except KeyError:
+        print('only {} are supported'.format(', '.join(TAGGING_FUNCTIONS.keys())))
+        sys.exit(1)
+        
     print('\n** {}'.format(path))
     choice_template = '\t'.join(['({index})', 'ARTIST={artist}',
                                  'TITLE={title}', 'ALBUM={album}', 'YEAR={year}'])
@@ -87,19 +98,25 @@ def pick_and_apply_tags(path, all_data):
         try:
             index = int(reply)
             tags = all_data[index]['tracks'][0]
-            apply_tags_mp3(path, artist=tags[0], title=tags[1], album=tags[2], year=tags[3])
+            apply_tags(path, artist=tags[0], title=tags[1], album=tags[2], year=tags[3])
             invalid_reply = False
         except (ValueError, IndexError):
             invalid_reply = True
 
 
-def main():
-    testfile = '/home/jonas/Python/audioidentifier/72 Zum Laichen Und Sterben Ziehen Di.mp3'
-    p = truncate_audio_file(testfile)
-    print(p)
-    t = upload_for_identification(p, API_KEY)
-    all_data = retrieve_result(t, API_KEY)
-    pick_and_apply_tags(testfile, all_data)
+def main(path):
+    idsnippet = truncate_audio_file(path)
+    token = upload_for_identification(idsnippet, API_KEY)
+    all_data = retrieve_result(token, API_KEY)
+    if all_data:
+        pick_and_apply_tags(path, all_data)
+    os.remove(idsnippet)
 
 if __name__ == '__main__':
-    main()
+    parser = argparse.ArgumentParser('Tool to get audio metadata from audiotag.info')
+    parser.add_argument('files', help='files in need of metadata', nargs='+')
+
+    args = parser.parse_args()
+
+    for path in args.files:
+        main(path)
