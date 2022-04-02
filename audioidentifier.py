@@ -26,7 +26,6 @@ def upload_for_identification(path, apikey):
     payload = {'action':'identify', 'apikey':apikey}
     with open(path, 'rb') as handle:
         result = requests.post(API_URL, payload, files={'file':handle})
-    print(result.text)
     reply = json.loads(result.text)
     if reply['success']:
         return reply['token']
@@ -39,7 +38,6 @@ def retrieve_result(token, apikey):
     while True:
         result = requests.post(API_URL, payload)
         reply = json.loads(result.text)
-        print(reply)
         if not reply['success']:
             raise RuntimeError(reply['error'])
         if reply['result'] == 'wait':
