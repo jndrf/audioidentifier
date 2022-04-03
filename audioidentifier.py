@@ -102,7 +102,7 @@ def pick_and_apply_tags(path, all_data):
         try:
             index = int(reply)
             tags = all_data[index]['tracks'][0]
-            apply_tags(path, artist=tags[0], title=tags[1], album=tags[2], year=tags[3])
+            apply_tags(path, artist=tags[1], title=tags[0], album=tags[2], year=tags[3])
             invalid_reply = False
         except (ValueError, IndexError):
             invalid_reply = True
