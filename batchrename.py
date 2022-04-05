@@ -23,7 +23,7 @@ def flatten_tags(tags):
         ret[key] = tag
     return ret
 
-def rename(inputfile, pattern):
+def rename(inputfile, pattern, dry_run):
     extension = inputfile.split('.')[-1].lower()
     tags = retrieve_tags[extension](inputfile)
     tags = flatten_tags(tags)
@@ -32,7 +32,10 @@ def rename(inputfile, pattern):
 
     outputfile = pattern.format(**tags)
 
-    os.renames(inputfile, outputfile)
+    if dry_run:
+        print('{} --> {}'.format(inputfile, outputfile))
+    else:
+        os.renames(inputfile, outputfile)
 
 
 if __name__ == '__main__':
@@ -45,8 +48,10 @@ Pattern for the new file names using lower-case tag names and the syntax of str.
 Default is '{artist}/{album}/{tracknumber}_{title}'.
 The file extension will be copied automatically, folders will be created as needed.
 ''')
+    parser.add_argument('-n', '--dry-run', action='store_true',
+                        help='print what would be changed, but don\'t change')
 
     args = parser.parse_args()
 
     for f in args.files:
-        rename(f, args.pattern)
+        rename(f, args.pattern, args.dry_run)
